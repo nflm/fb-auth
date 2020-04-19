@@ -14,9 +14,12 @@ module Fb
     #   after they have completed the Facebook OAuth flow.
     # @option [String] :code A single-use authorization code provided
     #   by Facebook OAuth to obtain an access token.
+    # @option [Array] :scope Array of permissions
+    #   see https://developers.facebook.com/docs/facebook-login/permissions/
     def initialize(options = {})
       @redirect_uri = options[:redirect_uri]
       @code = options[:code]
+      @scope = options[:scope].join(?,)
     end
 
     # @return [String] a url to Facebook's account authentication.
@@ -40,8 +43,14 @@ module Fb
     end
 
     def url_options
-      url_params = {scope: 'email,manage_pages', redirect_uri: @redirect_uri}
-      {host: 'www.facebook.com', path: '/dialog/oauth', params: url_params}
+      {
+        host: 'www.facebook.com',
+        path: '/dialog/oauth',
+        params: {
+          scope: @scope,
+          redirect_uri: @redirect_uri
+        }
+      }
     end
 
     def short_term_token_params
